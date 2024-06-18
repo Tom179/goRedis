@@ -25,8 +25,7 @@ type RESPHandler struct {
 }
 
 func NewRESPHandler() *RESPHandler {
-	// TODO: 实现database接口类
-	db := database.NewEchoDatabase()
+	db := database.NewDataBase()
 	return &RESPHandler{
 		db: db,
 	}
@@ -66,6 +65,7 @@ func (r *RESPHandler) Handler(ctx context.Context, conn net.Conn) {
 			logger.Info("request is nil: " + client.RemoteAddr().String())
 			continue
 		}
+		//客户端发送的指令必须是二维数组格式的
 		mbreply, ok := payload.Data.(*reply.MultiBulkReply)
 		if !ok { // 类型错误
 			logger.Error("need multi bulk reply")
