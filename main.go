@@ -28,7 +28,7 @@ func main() {
 		Path:       "log",
 		Name:       "go_redis",
 		Ext:        "log",
-		TimeFormat: "2006-01-02 15:04:05",
+		TimeFormat: "2006-01-02 15.04.05", //windows系统文件名不能有冒号，替换为`.`
 	})
 
 	if fileExists(configFile) {
@@ -41,7 +41,8 @@ func main() {
 		&tcp.Config{
 			Address: fmt.Sprintf("%s:%d", config.Properties.Bind, config.Properties.Port),
 		},
-		handler.NewRESPHandler())
+		handler.NewRESPHandler(),
+		/*tcp.NewEchoHandler()*/)
 
 	if err != nil {
 		logger.Warn(err)
