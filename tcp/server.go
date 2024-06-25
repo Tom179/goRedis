@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"goRedis/interface/tcp"
 	"goRedis/lib/logger"
+	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -13,7 +14,8 @@ import (
 )
 
 type Config struct {
-	Address string //tcp监听端口
+	Address   string //tcp监听端口
+	Multicore bool   // 是否多核运行
 }
 
 func ListenAndServeWithSignal(cfg *Config, handler tcp.Handler) error {
@@ -36,7 +38,7 @@ func ListenAndServeWithSignal(cfg *Config, handler tcp.Handler) error {
 	if err != nil {
 		return err
 	}
-	logger.Info(fmt.Sprintf("tcp start listen at:%s", cfg.Address))
+	log.Println(fmt.Sprintf("tcp start listen at:%s", cfg.Address))
 	ListenAndServe(listener, handler, closeChan)
 	return nil
 }
@@ -47,6 +49,7 @@ func ListenAndServe(listener net.Listener, handler tcp.Handler, closeChan <-chan
 		logger.Info("shutting down...")
 		_ = listener.Close()
 		_ = handler.Close()
+		syscall.Exit(0)
 	}()
 
 	defer func() {
@@ -57,12 +60,12 @@ func ListenAndServe(listener net.Listener, handler tcp.Handler, closeChan <-chan
 	ctx := context.Background()
 	var waitDone sync.WaitGroup //超时控制
 	for {
-		logger.Info("waiting link...")
+		//logger.Info("waiting link...")
 		conn, err := listener.Accept()
 		if err != nil {
 			break
 		}
-		logger.Info("accepted link: " + conn.RemoteAddr().String())
+		//logger.Info("accepted link: " + conn.RemoteAddr().String())
 		waitDone.Add(1)
 		go func() {
 			defer func() {
