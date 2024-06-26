@@ -35,8 +35,9 @@ func NewDataBase() *Database {
 		}
 		database.aofHandler = aofHandler
 		for _, db := range database.dbSet {
+			sdb := db //防止闭包问题
 			db.AddAof = func(line database2.CmdLine) {
-				database.aofHandler.AddAof(db.Id, line)
+				database.aofHandler.AddAof(sdb.Id, line)
 			}
 		}
 	}
