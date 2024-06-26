@@ -93,3 +93,11 @@ func ValidateArgs(args [][]byte, expected int) bool {
 	// 最少参数，比如-2表示至少2个参数
 	return argNum >= -expected
 }
+
+func BytesToStrings(args [][]byte) []string {
+	argStrs := make([]string, 0)
+	for _, argstr := range args {
+		argStrs = append(argStrs, string(argstr))
+	}
+	return argStrs
+}

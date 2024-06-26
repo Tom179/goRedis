@@ -2,7 +2,9 @@ package database
 
 import (
 	"fmt"
+	"goRedis/aof"
 	"goRedis/config"
+	database2 "goRedis/interface/database"
 	"goRedis/interface/resp"
 	"goRedis/lib/logger"
 	"goRedis/resp/reply"
@@ -11,7 +13,8 @@ import (
 )
 
 type Database struct {
-	dbSet []*RedisDb
+	dbSet      []*RedisDb
+	aofHandler *aof.AofHandler //持久化对象
 }
 
 func NewDataBase() *Database {
@@ -24,6 +27,18 @@ func NewDataBase() *Database {
 		db := NewRedisDb()
 		db.SetId(i)
 		database.dbSet[i] = db
+	}
+	if config.Properties.AppendOnly {
+		aofHandler, err := aof.NewAofHandler(database)
+		if err != nil {
+			panic(err) //严重错误直接抛出panic
+		}
+		database.aofHandler = aofHandler
+		for _, db := range database.dbSet {
+			db.AddAof = func(line database2.CmdLine) {
+				database.aofHandler.AddAof(db.Id, line)
+			}
+		}
 	}
 	return database
 }

@@ -13,13 +13,15 @@ import (
 
 // RedisDb Redis内核
 type RedisDb struct {
-	id   int            // 数据库编号
-	data interDict.Dict // 数据库存储的键值对
+	Id     int            // 数据库编号
+	Data   interDict.Dict // 数据库存储的键值对
+	AddAof func(database.CmdLine)
 }
 
 func NewRedisDb() *RedisDb {
 	return &RedisDb{
-		data: dict.NewSyncDict(),
+		Data:   dict.NewSyncDict(),
+		AddAof: func(line database.CmdLine) {},
 	}
 }
 
@@ -38,7 +40,7 @@ func (db *RedisDb) Exec(conn resp.Connection, cmdLine database.CmdLine) resp.Rep
 }
 
 func (db *RedisDb) GetEntity(key string) (*database.DataEntity, bool) {
-	val, exists := db.data.Get(key)
+	val, exists := db.Data.Get(key)
 	if !exists {
 		return nil, false
 	}
@@ -51,23 +53,23 @@ func (db *RedisDb) GetEntity(key string) (*database.DataEntity, bool) {
 }
 
 func (db *RedisDb) GetData() interDict.Dict {
-	return db.data
+	return db.Data
 }
 
 func (db *RedisDb) PutEntity(key string, entity *database.DataEntity) int {
-	return db.data.Put(key, entity)
+	return db.Data.Put(key, entity)
 }
 
 func (db *RedisDb) PutIfExists(key string, entity *database.DataEntity) int {
-	return db.data.PutIfExist(key, entity)
+	return db.Data.PutIfExist(key, entity)
 }
 
 func (db *RedisDb) PutIfAbsent(key string, entity *database.DataEntity) int {
-	return db.data.PutIfAbsent(key, entity)
+	return db.Data.PutIfAbsent(key, entity)
 }
 
 func (db *RedisDb) Remove(key string) int {
-	return db.data.Remove(key)
+	return db.Data.Remove(key)
 }
 
 // RemoveAll 删除多个键值对，返回成功删除的数量
@@ -80,7 +82,7 @@ func (db *RedisDb) RemoveAll(keys ...string) int {
 }
 
 func (db *RedisDb) Close() error {
-	db.data.Clear()
+	db.Data.Clear()
 	return nil
 }
 
@@ -89,5 +91,5 @@ func (db *RedisDb) AfterClientClose(client resp.Connection) error {
 }
 
 func (db *RedisDb) SetId(id int) {
-	db.id = id
+	db.Id = id
 }
