@@ -5,7 +5,10 @@ import (
 	"goRedis/interface/database"
 	"goRedis/lib/logger"
 	"goRedis/lib/utils"
+	"goRedis/resp/connection"
+	"goRedis/resp/parser"
 	"goRedis/resp/reply"
+	"io"
 	"os"
 	"strconv"
 )
@@ -81,5 +84,34 @@ func (handler *AofHandler) handleAof() {
 
 // loadAof
 func (handler *AofHandler) LoadAof() {
-
+	file, err := os.Open(handler.aofFileName) //封装了openFile()函数，以只读的方式打开文件
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+	defer file.Close() //恢复加载后就关闭文件
+	ch := parser.ParseStream(file)
+	for p := range ch {
+		if p.Err != nil {
+			if p.Err == io.EOF {
+				break
+			}
+			logger.Error(p.Err)
+			continue
+		}
+		if p.Data == nil {
+			logger.Error("empty payload")
+			continue
+		}
+		r, ok := p.Data.(*reply.MultiBulkReply) //类型断言和强转的区别在于，只是尝试转换，会告诉是否转换失败
+		if !ok {
+			logger.Error("need Mutibulk type")
+			continue
+		}
+		tempConn := &connection.RESPConn{}
+		rep := handler.database.Exec(tempConn, r.Args)
+		if reply.IsErrReply(rep) {
+			logger.Error(rep)
+		}
+	}
 }
