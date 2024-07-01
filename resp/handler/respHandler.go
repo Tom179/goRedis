@@ -69,7 +69,7 @@ func (r *RESPHandler) Handler(ctx context.Context, conn net.Conn) {
 				errors.Is(payload.Err, io.ErrUnexpectedEOF) ||
 				strings.Contains(payload.Err.Error(), ErrClosed) {
 				r.closeClient(client) // 关闭客户端连接
-				//logger.Info("Connection closed: " + client.RemoteAddr().String())
+				logger.Info("Connection closed: " + client.RemoteAddr().String())
 				return
 			}
 			// 协议错误

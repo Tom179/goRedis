@@ -1,0 +1,28 @@
+Index: main.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.go b/main.go
+--- a/main.go	
++++ b/main.go	
+@@ -7,7 +7,6 @@
+ 	"goRedis/lib/logger"
+ 	"goRedis/resp/handler"
+ 	"goRedis/tcp"
+-	"net/http"
+ 	_ "net/http/pprof"
+ 	"os"
+ )
+@@ -27,9 +26,9 @@
+ 
+ func main() {
+ 
+-	go func() {
++	/*	go func() {
+ 		http.ListenAndServe(":6060", nil)
+-	}()
++	}()*/
+ 
+ 	logger.Setup(&logger.Settings{
+ 		Path:       "log",

@@ -20,8 +20,7 @@ type RedisDb struct {
 
 func NewRedisDb() *RedisDb {
 	return &RedisDb{
-		Data:   dict.NewSyncDict(),
-		AddAof: func(line database.CmdLine) {},
+		Data: dict.NewSyncDict(),
 	}
 }
 

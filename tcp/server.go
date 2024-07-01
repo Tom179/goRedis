@@ -65,7 +65,7 @@ func ListenAndServe(listener net.Listener, handler tcp.Handler, closeChan <-chan
 		if err != nil {
 			break
 		}
-		//logger.Info("accepted link: " + conn.RemoteAddr().String())
+		logger.Info("accepted link: " + conn.RemoteAddr().String())
 		waitDone.Add(1)
 		go func() {
 			defer func() {

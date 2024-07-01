@@ -1,6 +1,7 @@
 package aof
 
 import (
+	"fmt"
 	"goRedis/config"
 	"goRedis/interface/database"
 	"goRedis/lib/logger"
@@ -41,7 +42,7 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 		return nil, err
 	}
 	handler.aofFile = aofFile
-	handler.aofChan = make(chan *payload, aofBufferSize)
+	handler.aofChan = make(chan *payload, aofBufferSize) //这个aofChan没东西
 	go func() {
 		handler.handleAof()
 	}()
@@ -50,6 +51,7 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 
 // ↓异步落盘\持久化
 func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号DB数据库
+	logger.Debugf("调用AddAof，命令为%s,dbInde为%d\n", utils.BytesToStrings(cmd), dbIndex)
 	if config.Properties.AppendOnly && handler.aofChan != nil {
 		//新建pyload
 		handler.aofChan <- &payload{ //将传入参数组装为payload并传到channel
@@ -60,11 +62,12 @@ func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号D
 }
 
 // 接收aofChan中的payload
-func (handler *AofHandler) handleAof() {
+func (handler *AofHandler) handleAof() { //修改currentDB编号
+	fmt.Println("进入handleAof函数")
 	handler.currentDB = 0
 
 	for p := range handler.aofChan {
-		if p.dbIndex != handler.currentDB { //检查是否跟上一个DB一样,如果不一样，插入select语句
+		if p.dbIndex != handler.currentDB { //检查是否跟上一个DB一样,如果不一样，插入select语句。p.dbIndex传输的预期id，curDB是实际id
 			args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
 			data := reply.NewMultiBulkReply(args).ToBytes() //得到写入文件的字节
 			_, err := handler.aofFile.Write(data)
@@ -73,6 +76,7 @@ func (handler *AofHandler) handleAof() {
 				continue
 			}
 			handler.currentDB = p.dbIndex
+			fmt.Println("db编号修改为:", handler.currentDB)
 		}
 		data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
 		_, err := handler.aofFile.Write(data)
@@ -109,6 +113,9 @@ func (handler *AofHandler) LoadAof() {
 			continue
 		}
 		tempConn := &connection.RESPConn{}
+
+		logger.Debugf("从ch中获取的payload.arg为一条指令:%s currentDB:%d", utils.BytesToStrings(r.Args), handler.currentDB)
+
 		rep := handler.database.Exec(tempConn, r.Args)
 		if reply.IsErrReply(rep) {
 			logger.Error(rep)

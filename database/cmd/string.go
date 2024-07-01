@@ -4,6 +4,7 @@ import (
 	"goRedis/database"
 	interdb "goRedis/interface/database"
 	"goRedis/interface/resp"
+	"goRedis/lib/logger"
 	"goRedis/lib/utils"
 	"goRedis/resp/reply"
 )
@@ -35,7 +36,11 @@ func Set(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply
 	key := string(args[0])
 	value := args[1]
 	db.PutEntity(key, interdb.NewDataEntity(value))
-	db.AddAof(utils.ToCmdLine2("set", utils.BytesToStrings(args)...))
+	args = utils.ToCmdLine2("set", utils.BytesToStrings(args)...)
+	db.AddAof(args)
+	/*	_, file, line, _ := runtime.Caller(0)
+		fmt.Printf("%s:%d set函数中执行AddAof函数,db.ID为:%d\n", filepath.Base(file), line, db.Id)*/
+	logger.Debugf("set执行函数\n")
 	return reply.NewOkReply()
 }
 

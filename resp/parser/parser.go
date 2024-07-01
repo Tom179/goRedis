@@ -41,6 +41,14 @@ func ParseStream(reader io.Reader) <-chan *Payload {
 	return ch
 }
 
+//写:
+//*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n
+//*2\r\n$6\r\nselect\r\n$1\r\n1\r\n
+
+//读：
+//*2\r\n$3\r\nget\r\n$3\r\nkey\r\n  get key
+//*2\r\n$6\r\nselect\r\n$1\r\n1\r\n
+
 func parse0(reader io.Reader, ch chan<- *Payload) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -55,9 +63,9 @@ func parse0(reader io.Reader, ch chan<- *Payload) {
 
 	for {
 		var ioErr bool
-		msg, ioErr, err = readLine(bufReader, &state)
+		msg, ioErr, err = readLine(bufReader, &state) //BUG:aof恢复时最后一样读取到EOF，导致最后一个命令无法发送响应就退出。
 		if err != nil {
-			if ioErr { //io错误，该进程结束
+			if ioErr { //io错误，该进程结束。
 				ch <- &Payload{
 					Err: err,
 				}
@@ -72,7 +80,7 @@ func parse0(reader io.Reader, ch chan<- *Payload) {
 			continue
 		}
 		//判断是否是多行解析模式
-		if !state.readingMultiLine {
+		if !state.readingMultiLine { //判断当前，比如说*3不是多行解析模式，解析到'*3'过后才会改变状态位，即它后面的数据才是多行解析模式
 			if msg[0] == '*' { //数组
 				err = parseMultiBulkHeader(msg, &state)
 				if err != nil {

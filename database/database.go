@@ -27,20 +27,21 @@ func NewDataBase() *Database {
 		db := NewRedisDb()
 		db.SetId(i)
 		database.dbSet[i] = db
-	}
-	if config.Properties.AppendOnly {
-		aofHandler, err := aof.NewAofHandler(database)
-		if err != nil {
-			panic(err) //严重错误直接抛出panic
+		database.dbSet[i].AddAof = func(line database2.CmdLine) { //仅声明，未调用
+			database.aofHandler.AddAof(i, line)
 		}
-		database.aofHandler = aofHandler
-		for _, db := range database.dbSet {
-			sdb := db //防止闭包问题
-			db.AddAof = func(line database2.CmdLine) {
-				database.aofHandler.AddAof(sdb.Id, line)
+		if config.Properties.AppendOnly { //
+			aofHandler, err := aof.NewAofHandler(database)
+			if err != nil {
+				panic(err) //严重错误直接抛出panic
 			}
+			database.aofHandler = aofHandler
+
 		}
 	}
+	/*	fmt.Println("测试")
+		database.dbSet[1].AddAof(utils.ToCmdLine("haha", "yes"))////这样就可以》》》》？？
+		fmt.Println("测试")*/
 	return database
 }
 
@@ -57,9 +58,11 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		if len(args) != 2 {
 			return reply.NewArgNumErrReply("select")
 		}
-		return Select(client, db, args[1:])
+		return Select(client, db, args[1:]) //读取到select指令,更改最上层连接层的selectedDB：数据库编号
 	}
 	dbIndex := client.GetDBIndex()
+	logger.Debug("Conn层的selectedDB为", dbIndex)
+
 	if dbIndex < 0 || dbIndex >= len(db.dbSet) {
 		return reply.NewStandardErrReply("ERR DB index out of range")
 	}

@@ -1,0 +1,17 @@
+Index: tcp/server.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tcp/server.go b/tcp/server.go
+--- a/tcp/server.go	
++++ b/tcp/server.go	
+@@ -65,7 +65,7 @@
+ 		if err != nil {
+ 			break
+ 		}
+-		//logger.Info("accepted link: " + conn.RemoteAddr().String())
++		logger.Info("accepted link: " + conn.RemoteAddr().String())
+ 		waitDone.Add(1)
+ 		go func() {
+ 			defer func() {
