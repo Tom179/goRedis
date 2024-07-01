@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"goRedis/interface/database"
 	interDict "goRedis/interface/meta/dict"
 	"goRedis/interface/resp"
@@ -20,7 +21,8 @@ type RedisDb struct {
 
 func NewRedisDb() *RedisDb {
 	return &RedisDb{
-		Data: dict.NewSyncDict(),
+		Data:   dict.NewSyncDict(),
+		AddAof: func(line database.CmdLine) {}, //调用AddAof函数时会引用到这个，一个空的方法
 	}
 }
 
@@ -35,6 +37,7 @@ func (db *RedisDb) Exec(conn resp.Connection, cmdLine database.CmdLine) resp.Rep
 		return reply.NewArgNumErrReply(cmdName)
 	}
 
+	fmt.Println("下层Exec方法db.Index为", db.Id, "准备执行底层指令方法")
 	return cmd.execFunc(conn, db, cmdLine[1:])
 }
 

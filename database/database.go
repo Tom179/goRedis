@@ -27,17 +27,31 @@ func NewDataBase() *Database {
 		db := NewRedisDb()
 		db.SetId(i)
 		database.dbSet[i] = db
-		database.dbSet[i].AddAof = func(line database2.CmdLine) { //仅声明，未调用
-			database.aofHandler.AddAof(i, line)
-		}
-		if config.Properties.AppendOnly { //
-			aofHandler, err := aof.NewAofHandler(database)
-			if err != nil {
-				panic(err) //严重错误直接抛出panic
-			}
-			database.aofHandler = aofHandler
+	}
 
+	if config.Properties.AppendOnly { //
+		aofHandler, err := aof.NewAofHandler(database) //打开文件，新建一个goroutine监听AofChan（调用AddAof才会写入）。执行命令的地方，【会调用具体指令重新执行一遍addAof()，然而现在还没这个函数还未初始化，导致没有执行预期的AddAof()：已解决】
+		if err != nil {
+			panic(err) //严重错误直接抛出panic
 		}
+		database.aofHandler = aofHandler
+		for _, db := range database.dbSet {
+			sdb := db
+			fmt.Println(db.Id)
+			sdb.AddAof = func(line database2.CmdLine) { //仅声明，未调用
+				fmt.Println("初始化该addAof函数时，预期db值为：", sdb.Id)
+				database.aofHandler.AddAof(sdb.Id, line)
+			}
+		}
+		/*	database.dbSet[7].AddAof(utils.ToCmdLine("haha"))
+			database.dbSet[8].AddAof(utils.ToCmdLine("haha"))*/
+
+		/*for _, db := range database.dbSet {
+			sdb := db // 创建一个局部变量 sdb
+			fmt.Println("当前 sdb.Id: ", sdb.Id)
+			sdb.AddAof = database.aofHandler.AddAof
+		}*/
+		aofHandler.LoadAof() //【所以我在想aofHandler.LoadAof()是否能直接提到最后面】
 	}
 	/*	fmt.Println("测试")
 		database.dbSet[1].AddAof(utils.ToCmdLine("haha", "yes"))////这样就可以》》》》？？
@@ -61,11 +75,12 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		return Select(client, db, args[1:]) //读取到select指令,更改最上层连接层的selectedDB：数据库编号
 	}
 	dbIndex := client.GetDBIndex()
-	logger.Debug("Conn层的selectedDB为", dbIndex)
+	logger.Debug("上层：Conn层的selectedDB为，所以执行dbSet[i].Exec方法", dbIndex)
 
 	if dbIndex < 0 || dbIndex >= len(db.dbSet) {
 		return reply.NewStandardErrReply("ERR DB index out of range")
 	}
+
 	return db.dbSet[dbIndex].Exec(client, args)
 }
 

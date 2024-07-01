@@ -29,20 +29,21 @@ type AofHandler struct {
 	aofFile     *os.File
 	aofFileName string
 	currentDB   int //维护当前库的id
+	Loading     utils.SafeBool
 }
 
 func NewAofHandler(database database.Database) (*AofHandler, error) {
 	handler := &AofHandler{}
 	handler.aofFileName = config.Properties.AppendFilename
 	handler.database = database
-	handler.LoadAof() //loadAof。当调用NewAofHandler时，是启动操作。先把写在硬盘上的aof文件恢复到内存中来。
+	//handler.LoadAof() //loadAof。当调用NewAofHandler时，是启动操作。先把写在硬盘上的aof文件恢复到内存中来。
 
 	aofFile, err := os.OpenFile(handler.aofFileName, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0600) //
 	if err != nil {
 		return nil, err
 	}
 	handler.aofFile = aofFile
-	handler.aofChan = make(chan *payload, aofBufferSize) //这个aofChan没东西
+	handler.aofChan = make(chan *payload, aofBufferSize)
 	go func() {
 		handler.handleAof()
 	}()
@@ -51,7 +52,8 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 
 // ↓异步落盘\持久化
 func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号DB数据库
-	logger.Debugf("调用AddAof，命令为%s,dbInde为%d\n", utils.BytesToStrings(cmd), dbIndex)
+	logger.Debugf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d\n", utils.BytesToStrings(cmd), dbIndex)
+	fmt.Println("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d")
 	if config.Properties.AppendOnly && handler.aofChan != nil {
 		//新建pyload
 		handler.aofChan <- &payload{ //将传入参数组装为payload并传到channel
@@ -62,32 +64,40 @@ func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号D
 }
 
 // 接收aofChan中的payload
-func (handler *AofHandler) handleAof() { //修改currentDB编号
+func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、修改vDB编号等
 	fmt.Println("进入handleAof函数")
 	handler.currentDB = 0
 
 	for p := range handler.aofChan {
-		if p.dbIndex != handler.currentDB { //检查是否跟上一个DB一样,如果不一样，插入select语句。p.dbIndex传输的预期id，curDB是实际id
-			args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
-			data := reply.NewMultiBulkReply(args).ToBytes() //得到写入文件的字节
-			_, err := handler.aofFile.Write(data)
-			if err != nil {
-				logger.Error(err)
-				continue
+		//fmt.Println("aofChan中传递的预取id为", p.dbIndex)
+		if p.dbIndex != handler.currentDB {
+			if !handler.Loading.Get() { //不是恢复模式就写
+				args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
+				data := reply.NewMultiBulkReply(args).ToBytes() //得到写入文件的字节
+				_, err := handler.aofFile.Write(data)
+				if err != nil {
+					logger.Error(err)
+					continue
+				}
 			}
 			handler.currentDB = p.dbIndex
 			fmt.Println("db编号修改为:", handler.currentDB)
 		}
-		data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
-		_, err := handler.aofFile.Write(data)
-		if err != nil {
-			logger.Error(err)
+		if !handler.Loading.Get() { //不是恢复模式就写
+			data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
+			_, err := handler.aofFile.Write(data)
+			if err != nil {
+				logger.Error(err)
+			}
 		}
 	}
+	handler.Loading.Set(false)
 }
 
 // loadAof
 func (handler *AofHandler) LoadAof() {
+	handler.Loading.Set(true)
+	fmt.Println("修改loding为true")
 	file, err := os.Open(handler.aofFileName) //封装了openFile()函数，以只读的方式打开文件
 	if err != nil {
 		logger.Error(err)
@@ -121,4 +131,5 @@ func (handler *AofHandler) LoadAof() {
 			logger.Error(rep)
 		}
 	}
+	fmt.Println("修改loding为false")
 }
