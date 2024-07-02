@@ -24,10 +24,6 @@ func Del(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply
 		keys[i] = string(arg)
 	}
 	count := db.RemoveAll(keys...)
-	if count > 0 { //成功删除
-		/*argStrs := utils.BytesToStrings(args)
-		//db.AddAof(utils.ToCmdLine2("del", argStrs...))*/
-	}
 	return reply.NewIntReply(int64(count))
 }
 
@@ -74,7 +70,6 @@ func Rename(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Re
 	}
 	db.PutEntity(dest, entity)
 	db.Remove(src)
-	//db.AddAof(utils.ToCmdLine2("rename", utils.BytesToStrings(args)...))
 	return reply.NewOkReply()
 }
 
@@ -93,7 +88,6 @@ func RenameNX(client resp.Connection, db *database.RedisDb, args [][]byte) resp.
 	}
 	db.PutEntity(dest, entity)
 	db.Remove(src)
-	//db.AddAof(utils.ToCmdLine2("renamenx", utils.BytesToStrings(args)...))
 	return reply.NewIntReply(1)
 }
 

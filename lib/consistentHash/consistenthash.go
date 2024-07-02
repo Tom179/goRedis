@@ -13,7 +13,7 @@ type NodeMap struct {
 	nodeHashMap map[int]string //string记录的节点名字、地址
 }
 
-func (m *NodeMap) IsEmpty() bool {
+func (m *NodeMap) IsEmpty() bool { //判断nodeHashs
 	return len(m.nodeHashs) == 0
 }
 
@@ -22,7 +22,7 @@ func NewNodeMap(hf HashFunc) *NodeMap {
 		hf = crc32.ChecksumIEEE //默认哈希函数
 	}
 
-	return &NodeMap{ //部分初始化
+	return &NodeMap{
 		hashFunc:    hf,
 		nodeHashMap: make(map[int]string),
 	}
@@ -33,7 +33,7 @@ func (m *NodeMap) AddNode(keys ...string) { //传入名称或地址。将节点�
 		if key == "" {
 			continue
 		}
-		hash := int(m.hashFunc([]byte(key)))    //根据NodeMap自身维护的哈希函数对key哈希，得到哈希值。
+		hash := int(m.hashFunc([]byte(key)))    //根据NodeMap自身维护的哈希函数对传入的key【字符串】进行哈希，得到哈希值。
 		m.nodeHashs = append(m.nodeHashs, hash) //将计算出的哈希值添加到节点list中
 		m.nodeHashMap[hash] = key               //记录key和hash的对应关系，以便根据hash得到key。
 	}
@@ -41,7 +41,7 @@ func (m *NodeMap) AddNode(keys ...string) { //传入名称或地址。将节点�
 	sort.Ints(m.nodeHashs) //将节点的哈希值进行排序
 }
 
-func (m *NodeMap) PickNode(key string) string { //返回string是目标节点的地址或名称
+func (m *NodeMap) PickNode(key string) string { //返回string是目标节点的地址
 	if m.IsEmpty() {
 		return ""
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	pool "github.com/jolestar/go-commons-pool"
 	"goRedis/config"
+	standAloneDatabase "goRedis/database"
 	"goRedis/interface/database"
 	"goRedis/interface/resp"
 	"goRedis/lib/consistentHash"
@@ -20,19 +21,19 @@ type ClusterDatabase struct { //Cluster节点:A要维护一组对B、一组对C�
 func NewClusterDatabase() *ClusterDatabase {
 	cluster := &ClusterDatabase{
 		self:           config.Properties.Self,
-		db:             nil,                            //todo NewStandAloneDatabase()未实现
-		peerPicker:     consistentHash.NewNodeMap(nil), //传入哈希函数
+		db:             standAloneDatabase.NewDataBase(),
+		peerPicker:     consistentHash.NewNodeMap(nil), //默认哈希函数
 		peerConnection: make(map[string]*pool.ObjectPool),
 	}
 	nodes := make([]string, 0, len(config.Properties.Peers)+1)
-	for _, peer := range config.Properties.Peers {
+	for _, peer := range config.Properties.Peers { //遍历配置中兄弟结点的ip
 		nodes = append(nodes, peer)
 	}
 	nodes = append(nodes, config.Properties.Self)
-	ctx := context.Background()
+
 	for _, node := range nodes {
 		cluster.peerPicker.AddNode(node)
-		cluster.peerConnection[node] = pool.NewObjectPoolWithDefaultConfig(ctx, &connectionFactory{
+		cluster.peerConnection[node] = pool.NewObjectPoolWithDefaultConfig(context.Background(), &connectionFactory{
 			Peer: node,
 		})
 		//

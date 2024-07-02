@@ -39,9 +39,6 @@ func Set(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply
 	value := args[1]
 	db.PutEntity(key, interdb.NewDataEntity(value))
 	args = utils.ToCmdLine2("set", utils.BytesToStrings(args)...)
-	//db.AddAof(args, db.Id)
-	/*	_, file, line, _ := runtime.Caller(0)
-		fmt.Printf("%s:%d set函数中执行AddAof函数,db.ID为:%d\n", filepath.Base(file), line, db.Id)*/
 	return reply.NewOkReply()
 }
 
@@ -50,7 +47,6 @@ func SetNX(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Rep
 	key := string(args[0])
 	value := args[1]
 	result := db.PutIfAbsent(key, interdb.NewDataEntity(value))
-	//db.AddAof(utils.ToCmdLine2("setnx", utils.BytesToStrings(args)...))
 	return reply.NewIntReply(int64(result))
 }
 
@@ -60,7 +56,6 @@ func GetSet(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Re
 	value := args[1]
 	entity, exists := db.GetEntity(key)
 	db.PutEntity(key, interdb.NewDataEntity(value))
-	//db.AddAof(utils.ToCmdLine2("getset", utils.BytesToStrings(args)...))
 	if !exists {
 		return reply.NewNullBulkReply()
 	}
