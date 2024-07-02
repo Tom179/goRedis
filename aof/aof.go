@@ -53,7 +53,7 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 // ↓异步落盘\持久化
 func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号DB数据库
 	logger.Debugf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d\n", utils.BytesToStrings(cmd), dbIndex)
-	fmt.Println("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d")
+	//fmt.Println("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d")
 	if config.Properties.AppendOnly && handler.aofChan != nil {
 		//新建pyload
 		handler.aofChan <- &payload{ //将传入参数组装为payload并传到channel
@@ -97,7 +97,7 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 // loadAof
 func (handler *AofHandler) LoadAof() {
 	handler.Loading.Set(true)
-	fmt.Println("修改loding为true")
+	//fmt.Println("修改loding为true")
 	file, err := os.Open(handler.aofFileName) //封装了openFile()函数，以只读的方式打开文件
 	if err != nil {
 		logger.Error(err)
@@ -131,5 +131,5 @@ func (handler *AofHandler) LoadAof() {
 			logger.Error(rep)
 		}
 	}
-	fmt.Println("修改loding为false")
+	//fmt.Println("修改loding为false")
 }

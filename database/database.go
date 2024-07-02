@@ -30,7 +30,7 @@ func NewDataBase() *Database {
 	}
 
 	if config.Properties.AppendOnly { //
-		aofHandler, err := aof.NewAofHandler(database) //打开文件，新建一个goroutine监听AofChan（调用AddAof才会写入）。执行命令的地方，【会调用具体指令重新执行一遍addAof()，然而现在还没这个函数还未初始化，导致没有执行预期的AddAof()：已解决】
+		aofHandler, err := aof.NewAofHandler(database) //打开文件，新建一个goroutine监听AofChan（调用AddAof才会写入）。执行命令的地方，
 		if err != nil {
 			panic(err) //严重错误直接抛出panic
 		}
@@ -43,15 +43,12 @@ func NewDataBase() *Database {
 				database.aofHandler.AddAof(sdb.Id, line)
 			}
 		}
-		/*	database.dbSet[7].AddAof(utils.ToCmdLine("haha"))
-			database.dbSet[8].AddAof(utils.ToCmdLine("haha"))*/
-
 		/*for _, db := range database.dbSet {
 			sdb := db // 创建一个局部变量 sdb
 			fmt.Println("当前 sdb.Id: ", sdb.Id)
 			sdb.AddAof = database.aofHandler.AddAof
 		}*/
-		aofHandler.LoadAof() //【所以我在想aofHandler.LoadAof()是否能直接提到最后面】
+		aofHandler.LoadAof()
 	}
 	/*	fmt.Println("测试")
 		database.dbSet[1].AddAof(utils.ToCmdLine("haha", "yes"))////这样就可以》》》》？？
