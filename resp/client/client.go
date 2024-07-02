@@ -67,7 +67,7 @@ func (client *Client) Start() {
 	client.ticker = time.NewTicker(10 * time.Second) //心跳通道
 
 	go client.handleWrite() //监听pendingReq通道的请求并，将请求写入到client.conn和watingResp中，暂未响应。
-	go client.handleRead()  //从client.conn中读取数据并将
+	go client.handleRead()  //从client.conn中读取数据并将其填入到从WatingResp获取的request中。request从等待响watingResp中移出，代表已成功响应
 	go client.heartbeat()   //每10秒发送ping命令到pendingReq
 
 	atomic.StoreInt32(&client.status, running)
@@ -130,7 +130,7 @@ func (client *Client) handleWrite() {
 	}
 }
 
-// 发送请求,发送到chan而已
+// 发送请求,发送到pendingReqs通道而已
 func (client *Client) Send(args [][]byte) resp.Reply {
 	if atomic.LoadInt32(&client.status) != running { //获取运行状态
 		return reply.NewStandardErrReply("client closed")
@@ -146,14 +146,12 @@ func (client *Client) Send(args [][]byte) resp.Reply {
 	client.pendingReqs <- req
 	timeout := req.waiting.WaitWithTimeout(maxWait)
 	if timeout {
-		//return protocol.MakeErrReply("server time out")
 		return reply.NewStandardErrReply("server time out")
 	}
 	if req.err != nil {
-		//return protocol.MakeErrReply("request failed " + req.err.Error())
 		return reply.NewStandardErrReply("request faild" + req.err.Error())
 	}
-	return req.reply
+	return req.reply //等待handleRead函数调用finishReq将reply填入，若超时则返回Err，不会到达这段代码
 }
 
 func (client *Client) doHeartbeat() {
@@ -192,7 +190,7 @@ func (client *Client) doRequest(req *request) {
 	}
 }
 
-func (client *Client) finishRequest(reply resp.Reply) { //client.从管道中获取Request结构体，填入指定的reply
+func (client *Client) finishRequest(reply resp.Reply) { //client.从watingResp管道中获取Request结构体，并把reply参数填入到Request中，request标记为Done()减一
 	defer func() {
 		if err := recover(); err != nil {
 			debug.PrintStack()

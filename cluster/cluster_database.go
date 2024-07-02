@@ -43,6 +43,9 @@ func NewClusterDatabase() *ClusterDatabase {
 	return cluster
 }
 
+//cluster集群执行命令的函数
+type CmdFunc func(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply
+
 func (c *ClusterDatabase) Exec(client resp.Connection, args [][]byte) resp.Reply {
 	//TODO implement me
 	panic("implement me")

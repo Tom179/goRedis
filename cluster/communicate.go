@@ -3,11 +3,15 @@ package cluster
 import (
 	"context"
 	"errors"
+	"goRedis/interface/resp"
+	"goRedis/lib/utils"
 	"goRedis/resp/client"
+	"goRedis/resp/reply"
 	"log"
+	"strconv"
 )
 
-func (cluster *ClusterDatabase) getPeerClient(peer string) (any, error) { //获取连接
+func (cluster *ClusterDatabase) getPeerClient(peer string) (*client.Client, error) { //获取连接
 
 	ctx := context.Background()
 	pool, ok := cluster.peerConnection[peer]
@@ -27,7 +31,7 @@ func (cluster *ClusterDatabase) getPeerClient(peer string) (any, error) { //获�
 	return c, err
 }
 
-func (cluster *ClusterDatabase) returnPeerClient(peer string, peerClient *client.Client) error { //todo 传入redis连接
+func (cluster *ClusterDatabase) returnPeerClient(peer string, peerClient *client.Client) error {
 	pool, ok := cluster.peerConnection[peer]
 	if !ok {
 		return errors.New("未找到连接池")
@@ -36,26 +40,26 @@ func (cluster *ClusterDatabase) returnPeerClient(peer string, peerClient *client
 
 }
 
-//func (cluster *ClusterDatabase) relay(peerIp string, c resp.Connection, args [][]byte) resp.Reply { //转发。connection是resp里面记录用户信息的conn
-//	if peerIp == cluster.self {
-//		return cluster.db.Exec(c, args)
-//	}
-//	client, err := cluster.getPeerClient(peerIp)
-//	if err != nil {
-//		return reply.NewStandardErrReply(err.Error())
-//	}
-//	defer func() {
-//		_ = cluster.returnPeerClient(peerIp, client.)
-//	}()
-//	//todo peerClient.Send(utils.ToCmdLine("select",strconv.Itoa(c.getDBIndex())))
-//	return nil //todo 返回转发的响应return client.Send(args)
-//}
+func (cluster *ClusterDatabase) relay(peerIp string, c resp.Connection, args [][]byte) resp.Reply { //【转发】从连接池中根据peerIp获取客户端连接，将指令转发到该连接
+	if peerIp == cluster.self {
+		return cluster.db.Exec(c, args)
+	}
+	cli, err := cluster.getPeerClient(peerIp)
+	if err != nil {
+		return reply.NewStandardErrReply(err.Error())
+	}
+	defer func() {
+		_ = cluster.returnPeerClient(peerIp, cli)
+	}()
+	cli.Send(utils.ToCmdLine("select", strconv.Itoa(c.GetDBIndex()))) //想一下dbIndex的问题，当前库号是否是预期的？
+	return cli.Send(args)
+}
 
-//func (cluster *ClusterDatabase) broadcast(c resp.Connection, args [][]byte) map[string]resp.Reply { //[][]byte是指令
-//	results := make(map[string]resp.Reply)
-//	for _, node := range cluster.nodes {
-//		result := cluster.relay(node, c, args) //调用转发函数
-//		results[node] = result
-//	}
-//	return results
-//}
+func (cluster *ClusterDatabase) broadcast(c resp.Connection, args [][]byte) map[string]resp.Reply { //[][]byte是指令
+	results := make(map[string]resp.Reply)
+	for _, node := range cluster.nodes {
+		result := cluster.relay(node, c, args) //调用转发函数
+		results[node] = result
+	}
+	return results
+}
