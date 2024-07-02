@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
-      <change afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cluster/cluster_database.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/cluster_database.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cluster/communicate.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/communicate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/client/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cluster/commandRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resp/handler/respHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/handler/respHandler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -5,7 +5,7 @@ import (
 	"goRedis/resp/reply"
 )
 
-var router = makeRouter()
+var CommandRouter = makeRouter()
 
 func makeRouter() map[string]CmdFunc { //string是指令
 	routerMap := make(map[string]CmdFunc)

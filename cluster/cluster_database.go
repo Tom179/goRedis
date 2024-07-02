@@ -2,12 +2,16 @@ package cluster //集群数据库：在这层做请求转发。底层的单机�
 
 import (
 	"context"
+	"fmt"
 	pool "github.com/jolestar/go-commons-pool"
 	"goRedis/config"
 	standAloneDatabase "goRedis/database"
 	"goRedis/interface/database"
 	"goRedis/interface/resp"
 	"goRedis/lib/consistentHash"
+	"goRedis/lib/logger"
+	"goRedis/resp/reply"
+	"strings"
 )
 
 type ClusterDatabase struct { //Cluster节点:A要维护一组对B、一组对C节点的客户端。并发获取多个连接而不是一个连接。
@@ -43,20 +47,30 @@ func NewClusterDatabase() *ClusterDatabase {
 	return cluster
 }
 
-//cluster集群执行命令的函数
+// cluster集群执行命令的函数
 type CmdFunc func(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply
 
-func (c *ClusterDatabase) Exec(client resp.Connection, args [][]byte) resp.Reply {
-	//TODO implement me
-	panic("implement me")
+func (cluster *ClusterDatabase) Exec(client resp.Connection, args [][]byte) (result resp.Reply) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error(err)
+			result = reply.NewUnknownErrReply()
+		}
+	}()
+	cmdName := strings.ToLower(string(args[0])) //识别指令类型
+	cmdFunc, ok := CommandRouter[cmdName]
+	if !ok {
+		result = reply.NewStandardErrReply("not supported cmd")
+		fmt.Println("集群层指令未注册")
+	}
+	result = cmdFunc(cluster, client, args)
+	return
 }
 
-func (c *ClusterDatabase) Close() error {
-	//TODO implement me
-	panic("implement me")
+func (cluster *ClusterDatabase) Close() error {
+	return cluster.db.Close()
 }
 
-func (c *ClusterDatabase) AfterClientClose(client resp.Connection) error {
-	//TODO implement me
-	panic("implement me")
+func (cluster *ClusterDatabase) AfterClientClose(client resp.Connection) error {
+	return cluster.db.AfterClientClose(client)
 }
