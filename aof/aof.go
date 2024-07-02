@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type CmdLine = [][]byte
@@ -68,20 +69,20 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 	fmt.Println("进入handleAof函数")
 	handler.currentDB = 0
 
-	for p := range handler.aofChan {
-		//fmt.Println("aofChan中传递的预取id为", p.dbIndex)
+	for p := range handler.aofChan { //传入当前指令和上一个id
 		if p.dbIndex != handler.currentDB {
+			fmt.Printf("p.dbIndex为%d,handler.currentDB为%d：", p.dbIndex, handler.currentDB)
 			if !handler.Loading.Get() { //不是恢复模式就写
 				args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
-				data := reply.NewMultiBulkReply(args).ToBytes() //得到写入文件的字节
-				_, err := handler.aofFile.Write(data)
+				data := reply.NewMultiBulkReply(args).ToBytes()
+				_, err := handler.aofFile.Write(data) //写Select命令到Aof中
 				if err != nil {
 					logger.Error(err)
 					continue
 				}
 			}
 			handler.currentDB = p.dbIndex
-			fmt.Println("db编号修改为:", handler.currentDB)
+			fmt.Println("handler.currentDB编号修改为:", handler.currentDB)
 		}
 		if !handler.Loading.Get() { //不是恢复模式就写
 			data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
@@ -123,10 +124,18 @@ func (handler *AofHandler) LoadAof() {
 			continue
 		}
 		tempConn := &connection.RESPConn{}
+		fmt.Printf("从ch中获取的payload.arg为一条指令:%s currentDB:%d\n", utils.BytesToStrings(r.Args), handler.currentDB)
+		tempConn.SelectDB(handler.currentDB)           // 传入当前数据库id到Conn中的SelectedDB，因为Exec会根据Conn中的SelectedDB索引dbSet
+		rep := handler.database.Exec(tempConn, r.Args) ///////////////////////////////////
 
-		logger.Debugf("从ch中获取的payload.arg为一条指令:%s currentDB:%d", utils.BytesToStrings(r.Args), handler.currentDB)
-
-		rep := handler.database.Exec(tempConn, r.Args)
+		cmdName := string(r.Args[0])
+		cmdName = strings.ToLower(cmdName)
+		if cmdName == "select" {
+			if len(r.Args) != 2 {
+				continue
+			}
+			handler.currentDB, _ = strconv.Atoi(string(r.Args[1])) // select指令切换当前数据库
+		}
 		if reply.IsErrReply(rep) {
 			logger.Error(rep)
 		}

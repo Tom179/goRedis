@@ -7,6 +7,7 @@ import (
 	database2 "goRedis/interface/database"
 	"goRedis/interface/resp"
 	"goRedis/lib/logger"
+	"goRedis/lib/utils"
 	"goRedis/resp/reply"
 	"strconv"
 	"strings"
@@ -35,24 +36,23 @@ func NewDataBase() *Database {
 			panic(err) //严重错误直接抛出panic
 		}
 		database.aofHandler = aofHandler
-		for _, db := range database.dbSet {
-			sdb := db
+		/*for _, db := range database.dbSet {
+			sdb := *db
 			fmt.Println(db.Id)
 			sdb.AddAof = func(line database2.CmdLine) { //仅声明，未调用
 				fmt.Println("初始化该addAof函数时，预期db值为：", sdb.Id)
 				database.aofHandler.AddAof(sdb.Id, line)
 			}
-		}
-		/*for _, db := range database.dbSet {
-			sdb := db // 创建一个局部变量 sdb
-			fmt.Println("当前 sdb.Id: ", sdb.Id)
-			sdb.AddAof = database.aofHandler.AddAof
 		}*/
+		for _, db := range database.dbSet {
+			sdb := db // 创建一个局部变量 sdb
+			db.AddAof = func(line database2.CmdLine) { //仅声明，未调用
+				fmt.Println("调用该DB号时，实际的DB号为：", sdb.Id)
+				database.aofHandler.AddAof(sdb.Id, line)
+			}
+		}
 		aofHandler.LoadAof()
 	}
-	/*	fmt.Println("测试")
-		database.dbSet[1].AddAof(utils.ToCmdLine("haha", "yes"))////这样就可以》》》》？？
-		fmt.Println("测试")*/
 	return database
 }
 
@@ -63,21 +63,23 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		}
 	}()
 
+	fmt.Println("调用上层Exec的args:", utils.BytesToStrings(args))
 	cmdName := string(args[0])
 	cmdName = strings.ToLower(cmdName)
 	if cmdName == "select" {
 		if len(args) != 2 {
 			return reply.NewArgNumErrReply("select")
 		}
-		return Select(client, db, args[1:]) //读取到select指令,更改最上层连接层的selectedDB：数据库编号
+		return Select(client, db, args[1:]) //更改Conn的selectedDB
 	}
-	dbIndex := client.GetDBIndex()
-	logger.Debug("上层：Conn层的selectedDB为，所以执行dbSet[i].Exec方法", dbIndex)
+	dbIndex := client.GetDBIndex() //获取Conn的selectedDB
+	fmt.Printf("上层：Conn层的selectedDB为%d，所以执行dbSet[%d].Exec方法\n", dbIndex, dbIndex)
 
 	if dbIndex < 0 || dbIndex >= len(db.dbSet) {
 		return reply.NewStandardErrReply("ERR DB index out of range")
 	}
 
+	db.dbSet[dbIndex].AddAof(args)
 	return db.dbSet[dbIndex].Exec(client, args)
 }
 
