@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aof/aof.go" beforeDir="false" afterPath="$PROJECT_DIR$/aof/aof.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" afterPath="$PROJECT_DIR$/appendonly.aof" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/cmd/string.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/cmd/string.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resp/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/client/client.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
