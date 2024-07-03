@@ -1,9 +1,11 @@
 package cluster
 
 import (
-	"fmt"
 	"goRedis/interface/resp"
+	"goRedis/lib/logger"
+	"goRedis/lib/utils"
 	"goRedis/resp/reply"
+	"strconv"
 )
 
 var CommandRouter = makeRouter()
@@ -29,7 +31,7 @@ func makeRouter() map[string]CmdFunc { //string是指令
 // get key//set key v1//对一个键操作：可以直接转发
 func defultFunc(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply {
 	key := string(cmdArgs[1])
-	fmt.Printf("key为:%s,根据key哈希得到集群中的结点地址\n", key)
+	//fmt.Printf("key为:%s,根据key哈希得到集群中的结点地址\n", key)
 
 	peerIp := cluster.peerPicker.PickNode(key) //找到结点地址
 	return cluster.relay(peerIp, c, cmdArgs)   //转发
@@ -40,6 +42,13 @@ func ping(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Re
 }
 
 func execSelect(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply { //和ping一样
+	args := utils.ToCmdLine("select", strconv.Atoi(cmdArgs[1]))
+	data := reply.NewMultiBulkReply(args).ToBytes()
+	_, err := cluster.db.aofFile.Write(data) //写Select命令到Aof中
+	if err != nil {
+		logger.Error(err)
+		continue
+	}
 	return cluster.db.Exec(c, cmdArgs)
 }
 

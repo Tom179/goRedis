@@ -5,20 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
-      <change afterPath="$PROJECT_DIR$/lib/consistentHash/hash_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aof/aof.go" beforeDir="false" afterPath="$PROJECT_DIR$/aof/aof.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" afterPath="$PROJECT_DIR$/appendonly.aof" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cluster/cluster_database.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/cluster_database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cluster/commandRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cluster/communicate.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/communicate.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/cmd/string.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/cmd/string.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/redisDb.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/redisDb.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/myapp.exe" beforeDir="false" afterPath="$PROJECT_DIR$/myapp.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/client/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp/handler/respHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/handler/respHandler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resp/parser/parser.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/parser/parser.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,25 +51,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;configurable..is.expanded&quot;: &quot;false&quot;,
-    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/GoWorks/project/goRedis&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
-  }
-}</component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\GoWorks\project\goRedis\lib\consistentHash" />
@@ -123,14 +108,23 @@
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build main.go" />
-        <item itemvalue="Go Test.TestHushValue in goRedis/lib/consistentHash" />
-        <item itemvalue="Go Build.go build goRedis" />
-        <item itemvalue="Go Build.go build echo.go" />
-        <item itemvalue="Go Build.go build main.go" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <created>1719998066727</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1719998066727</updated>
+      <workItem from="1719998071308" duration="4000" />
+    </task>
+    <servers />
+  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
@@ -192,36 +186,17 @@
     <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/cluster/communicate.go</url>
-          <line>43</line>
-          <option name="timeStamp" value="68" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/lib/consistentHash/consistenthash.go</url>
-          <line>50</line>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/../../../go1.22.4.windows-amd64/go/src/sort/search.go</url>
-          <line>57</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="GoApplicationRunConfiguration">
-        <watch expression="handler.aofChan" language="go" />
-        <watch expression="len(handler.aofChan)" language="go" />
-        <watch expression="aofHandler.AddAof" language="go" />
-        <watch expression="database.aofHandler" language="go" />
-        <watch expression="db.Id" language="go" />
-        <watch expression="p.dbIndex" language="go" />
-        <watch expression="p.dbIndex" language="go" />
-        <watch expression="handler.Loading" language="go" />
-        <watch expression="data" language="go" />
+        <watch expression="handler.aofChan" />
+        <watch expression="len(handler.aofChan)" />
+        <watch expression="aofHandler.AddAof" />
+        <watch expression="database.aofHandler" />
+        <watch expression="db.Id" />
+        <watch expression="p.dbIndex" />
+        <watch expression="p.dbIndex" />
+        <watch expression="handler.Loading" />
+        <watch expression="data" />
       </configuration>
     </watches-manager>
   </component>

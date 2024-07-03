@@ -4,8 +4,6 @@ import (
 	"goRedis/database"
 	interdb "goRedis/interface/database"
 	"goRedis/interface/resp"
-	"goRedis/lib/logger"
-	"goRedis/lib/utils"
 	"goRedis/resp/reply"
 )
 
@@ -19,7 +17,7 @@ func init() {
 
 // Get 获取key的值，如果key不存在则返回nil，如果key的值不是字符串则返回错误，字符串以[]byte形式存储
 func Get(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply {
-	logger.Debugf("Get命令，底层id号为%d", db.Id)
+	//logger.Debugf("Get命令，底层id号为%d", db.Id)
 	key := string(args[0])
 	entity, exists := db.GetEntity(key)
 	if !exists {
@@ -34,11 +32,11 @@ func Get(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply
 
 // Set 设置key的值为value TODO: 暂时只支持'set key value'，其他可选参数后续支持
 func Set(client resp.Connection, db *database.RedisDb, args [][]byte) resp.Reply {
-	logger.Debugf("Set命令，底层id号为%d", db.Id)
+	//logger.Debugf("Set命令，底层id号为%d", db.Id)
 	key := string(args[0])
 	value := args[1]
 	db.PutEntity(key, interdb.NewDataEntity(value))
-	args = utils.ToCmdLine2("set", utils.BytesToStrings(args)...)
+	//args = utils.ToCmdLine2("set", utils.BytesToStrings(args)...)
 	return reply.NewOkReply()
 }
 
