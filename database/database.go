@@ -45,10 +45,8 @@ func NewDataBase() *Database {
 			}
 		}*/
 		for _, db := range database.dbSet {
-			sdb := db                                  // 创建一个局部变量 sdb
-			db.AddAof = func(line database2.CmdLine) { //仅声明，未调用
-				//fmt.Println("调用该DB号时，实际的DB号为：", sdb.Id, aofHandler.Loading)
-				database.aofHandler.AddAof(sdb.Id, line, aofHandler.Loading)
+			db.AddAof = func(line database2.CmdLine) { //仅声明，未调用，现在的id、Loaing是固定不变的,记得在调用之前手动改一下
+				database.aofHandler.AddAof(db.Id, line, aofHandler.Loading)
 			}
 		}
 		aofHandler.LoadAof()
@@ -78,8 +76,16 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		return reply.NewStandardErrReply("ERR DB index out of range")
 	}
 
-	db.dbSet[dbIndex].AddAof(args)
+	db.RegistImplementedCmd()
+	if db.aofHandler.AofCmd[cmdName] { //如果在这些指令中
+		db.dbSet[dbIndex].AddAof(args)
+	}
 	return db.dbSet[dbIndex].Exec(client, args)
+}
+
+func (db *Database) RegistImplementedCmd() {
+	db.aofHandler.AofCmd["set"] = true
+	db.aofHandler.AofCmd["del"] = true
 }
 
 func (db *Database) Close() error {

@@ -5,13 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
+      <change afterPath="$PROJECT_DIR$/lib/consistentHash/hash_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aof/aof.go" beforeDir="false" afterPath="$PROJECT_DIR$/aof/aof.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" afterPath="$PROJECT_DIR$/appendonly.aof" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cluster/cluster_database.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/cluster_database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cluster/commandRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cluster/communicate.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/communicate.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils/SafeBool.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/SafeBool.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/redis.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myapp.exe" beforeDir="false" afterPath="$PROJECT_DIR$/myapp.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resp/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/client/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resp/handler/respHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/handler/respHandler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,10 +76,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\GoWorks\project\goRedis\lib\consistentHash" />
       <recent name="D:\GoWorks\project\goRedis\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build goRedis">
+  <component name="RunManager" selected="Go Build.go build main.go">
     <configuration name="go build echo.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="goRedis" />
       <working_directory value="$PROJECT_DIR$" />
@@ -100,13 +108,25 @@
       <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestHushValue in goRedis/lib/consistentHash" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="goRedis" />
+      <working_directory value="$PROJECT_DIR$/lib/consistentHash" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="goRedis/lib/consistentHash" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestHushValue\E$" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build goRedis" />
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.TestHushValue in goRedis/lib/consistentHash" />
+        <item itemvalue="Go Build.go build goRedis" />
         <item itemvalue="Go Build.go build echo.go" />
         <item itemvalue="Go Build.go build main.go" />
-        <item itemvalue="Go Build.go build goRedis" />
       </list>
     </recent_temporary>
   </component>
@@ -175,19 +195,19 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>56</line>
-          <option name="timeStamp" value="23" />
+          <url>file://$PROJECT_DIR$/cluster/communicate.go</url>
+          <line>43</line>
+          <option name="timeStamp" value="68" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>71</line>
-          <option name="timeStamp" value="31" />
+          <url>file://$PROJECT_DIR$/lib/consistentHash/consistenthash.go</url>
+          <line>50</line>
+          <option name="timeStamp" value="74" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/database/database.go</url>
-          <line>67</line>
-          <option name="timeStamp" value="55" />
+          <url>file://$PROJECT_DIR$/../../../go1.22.4.windows-amd64/go/src/sort/search.go</url>
+          <line>57</line>
+          <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

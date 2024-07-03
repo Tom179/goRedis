@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pool "github.com/jolestar/go-commons-pool"
+	"github.com/spaolacci/murmur3"
 	"goRedis/config"
 	standAloneDatabase "goRedis/database"
 	"goRedis/interface/database"
@@ -26,7 +27,7 @@ func NewClusterDatabase() *ClusterDatabase {
 	cluster := &ClusterDatabase{
 		self:           config.Properties.Self,
 		db:             standAloneDatabase.NewDataBase(),
-		peerPicker:     consistentHash.NewNodeMap(nil), //默认哈希函数
+		peerPicker:     consistentHash.NewNodeMap(murmur3.Sum32), //默认哈希函数
 		peerConnection: make(map[string]*pool.ObjectPool),
 	}
 	nodes := make([]string, 0, len(config.Properties.Peers)+1)
@@ -36,14 +37,15 @@ func NewClusterDatabase() *ClusterDatabase {
 	nodes = append(nodes, config.Properties.Self)
 
 	for _, node := range nodes {
-		cluster.peerPicker.AddNode(node)
+		cluster.peerPicker.AddNode(node) //todo 结点ip的哈希值得很紧怎么办？。而Key的hash值太散，会插不进去。
 		cluster.peerConnection[node] = pool.NewObjectPoolWithDefaultConfig(context.Background(), &connectionFactory{
 			Peer: node,
 		})
-		//
 	}
-	cluster.nodes = nodes
+	//Dugug
+	cluster.peerPicker.ShowNodeHashMap()
 
+	cluster.nodes = nodes
 	return cluster
 }
 
@@ -60,7 +62,6 @@ func (cluster *ClusterDatabase) Exec(client resp.Connection, args [][]byte) (res
 	cmdName := strings.ToLower(string(args[0])) //识别指令类型
 	cmdFunc, ok := CommandRouter[cmdName]
 	if !ok {
-		result = reply.NewStandardErrReply("not supported cmd")
 		fmt.Println("集群层指令未注册")
 	}
 	result = cmdFunc(cluster, client, args)

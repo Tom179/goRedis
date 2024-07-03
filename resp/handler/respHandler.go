@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"goRedis/cluster"
 	"goRedis/config"
 	"goRedis/database"
@@ -35,6 +36,7 @@ type RESPHandler struct {
 func NewRESPHandler() *RESPHandler { //从配置文件中读取【控制单机或者集群数据库】
 	var db dbinterface.Database
 	if config.Properties.Self != "" && len(config.Properties.Peers) > 0 {
+		fmt.Println("集群模式启动")
 		db = cluster.NewClusterDatabase()
 	} else {
 		db = database.NewDataBase()
@@ -126,7 +128,7 @@ func (r *RESPHandler) Handler(ctx context.Context, conn net.Conn) {
 // Close 关闭协议层
 func (r *RESPHandler) Close() error {
 	logger.Info("handler shutting down")
-	r.closing.Store(true) // 设置关闭状态
+	r.closing.Store(true)                                  // 设置关闭状态
 	r.activeConn.Range(func(key, value interface{}) bool { // 关闭所有连接
 		client := value.(*connection.RESPConn)
 		_ = client.Close()

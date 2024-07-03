@@ -1,6 +1,7 @@
 package consistentHash
 
 import (
+	"fmt"
 	"hash/crc32"
 	"sort"
 )
@@ -46,11 +47,22 @@ func (m *NodeMap) PickNode(key string) string { //返回string是目标节点的
 		return ""
 	}
 	hash := int(m.hashFunc([]byte(key)))
+	fmt.Println("根据key的hash值为", hash)
 	nodeIDX := sort.Search(len(m.nodeHashs), func(i int) bool {
 		return m.nodeHashs[i] >= hash //找到大于该hash的第一个哈希，也就是找到了节点
 	}) //返回满足（条件函数）的第一个下标
+	fmt.Println("找到的大于该hash的第一个下标为", nodeIDX)
 	if nodeIDX == len(m.nodeHashs) {
 		nodeIDX = 0
 	}
+	fmt.Println("PickNode选择的结点为:", m.nodeHashMap[m.nodeHashs[nodeIDX]])
 	return m.nodeHashMap[m.nodeHashs[nodeIDX]]
+}
+
+func (m *NodeMap) ShowNodeHashMap() {
+	fmt.Println("集群的HashMap为：")
+	for k, v := range m.nodeHashMap {
+		fmt.Printf("[%d]%s\n", k, v)
+	}
+	fmt.Println("集群的nodeHashes哈希值为", m.nodeHashs)
 }

@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"fmt"
 	"goRedis/interface/resp"
 	"goRedis/resp/reply"
 )
@@ -28,6 +29,8 @@ func makeRouter() map[string]CmdFunc { //string是指令
 // get key//set key v1//对一个键操作：可以直接转发
 func defultFunc(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply {
 	key := string(cmdArgs[1])
+	fmt.Printf("key为:%s,根据key哈希得到集群中的结点地址\n", key)
+
 	peerIp := cluster.peerPicker.PickNode(key) //找到结点地址
 	return cluster.relay(peerIp, c, cmdArgs)   //转发
 }

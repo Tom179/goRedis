@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"goRedis/interface/resp"
 	"goRedis/lib/logger"
 	"goRedis/lib/sync/wait"
@@ -183,6 +184,7 @@ func (client *Client) doRequest(req *request) {
 		}
 	}
 	if err == nil { //写成功
+		fmt.Println("写入到连接成功！！！,将req发送到WatingResp通道")
 		client.watingResp <- req
 	} else {
 		req.err = err

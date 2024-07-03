@@ -32,10 +32,12 @@ type AofHandler struct {
 	aofFileName string
 	currentDB   int //维护当前库的id
 	Loading     bool
+	AofCmd      map[string]bool
 }
 
 func NewAofHandler(database database.Database) (*AofHandler, error) {
 	handler := &AofHandler{}
+	handler.AofCmd = make(map[string]bool)
 	handler.aofFileName = config.Properties.AppendFilename
 	handler.database = database
 	//handler.LoadAof() //loadAof。当调用NewAofHandler时，是启动操作。先把写在硬盘上的aof文件恢复到内存中来。
@@ -70,7 +72,7 @@ func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine, isLoading bool) { //
 
 // 接收aofChan中的payload
 func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、修改vDB编号等
-	fmt.Println("进入handleAof函数")
+	fmt.Println("启动handleAof线程，监听handler.AofChan")
 	handler.currentDB = 0
 
 	for p := range handler.aofChan { //传入当前指令和上一个id
@@ -104,7 +106,7 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 // loadAof
 func (handler *AofHandler) LoadAof() {
 	handler.Loading = true
-	fmt.Println("修改loding为true,loding:", handler.Loading)
+	//fmt.Println("修改loding为true,loding:", handler.Loading)
 	file, err := os.Open(handler.aofFileName) //封装了openFile()函数，以只读的方式打开文件
 	if err != nil {
 		logger.Error(err)
@@ -147,5 +149,5 @@ func (handler *AofHandler) LoadAof() {
 		}
 	}
 	handler.Loading = false
-	fmt.Println("修改loding为false,loding:", handler.Loading)
+	//fmt.Println("修改loding为false,loding:", handler.Loading)
 }

@@ -3,6 +3,7 @@ package cluster
 import (
 	"context"
 	"errors"
+	"fmt"
 	"goRedis/interface/resp"
 	"goRedis/lib/utils"
 	"goRedis/resp/client"
@@ -13,12 +14,12 @@ import (
 
 func (cluster *ClusterDatabase) getPeerClient(peer string) (*client.Client, error) { //获取连接
 
-	ctx := context.Background()
 	pool, ok := cluster.peerConnection[peer]
 	if !ok {
+		fmt.Println("未找到连接池")
 		return nil, errors.New("未找到连接池") //连接池为空
 	}
-	object, err := pool.BorrowObject(ctx)
+	object, err := pool.BorrowObject(context.Background()) //从连接池获取连接新建对象。会自动调用MakeObject函数。其中封装了Client.Start函数
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -41,11 +42,13 @@ func (cluster *ClusterDatabase) returnPeerClient(peer string, peerClient *client
 }
 
 func (cluster *ClusterDatabase) relay(peerIp string, c resp.Connection, args [][]byte) resp.Reply { //【转发】从连接池中根据peerIp获取客户端连接，将指令转发到该连接
+	fmt.Println("进入relay函数，peerIp为", peerIp)
 	if peerIp == cluster.self {
 		return cluster.db.Exec(c, args)
 	}
 	cli, err := cluster.getPeerClient(peerIp)
 	if err != nil {
+		fmt.Println("获取自定义集群连接失败")
 		return reply.NewStandardErrReply(err.Error())
 	}
 	defer func() {

@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/zhangyunhao116/skipmap v0.10.1
 )
 
