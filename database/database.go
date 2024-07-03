@@ -31,7 +31,7 @@ func NewDataBase() *Database {
 	}
 
 	if config.Properties.AppendOnly { //
-		aofHandler, err := aof.NewAofHandler(database) //打开文件，新建一个goroutine监听AofChan（调用AddAof才会写入）。执行命令的地方，
+		aofHandler, err := aof.NewAofHandler(database) //打开文件，新建一个goroutine从AofChan中取指令来写文件，（调用AddAof才会写入AofChan），所以会阻塞到AofChan传值为止
 		if err != nil {
 			panic(err) //严重错误直接抛出panic
 		}
@@ -45,10 +45,10 @@ func NewDataBase() *Database {
 			}
 		}*/
 		for _, db := range database.dbSet {
-			sdb := db // 创建一个局部变量 sdb
+			sdb := db                                  // 创建一个局部变量 sdb
 			db.AddAof = func(line database2.CmdLine) { //仅声明，未调用
-				fmt.Println("调用该DB号时，实际的DB号为：", sdb.Id)
-				database.aofHandler.AddAof(sdb.Id, line)
+				//fmt.Println("调用该DB号时，实际的DB号为：", sdb.Id, aofHandler.Loading)
+				database.aofHandler.AddAof(sdb.Id, line, aofHandler.Loading)
 			}
 		}
 		aofHandler.LoadAof()
@@ -63,7 +63,6 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		}
 	}()
 
-	fmt.Println("调用上层Exec的args:", utils.BytesToStrings(args))
 	cmdName := string(args[0])
 	cmdName = strings.ToLower(cmdName)
 	if cmdName == "select" {
@@ -73,7 +72,7 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 		return Select(client, db, args[1:]) //更改Conn的selectedDB
 	}
 	dbIndex := client.GetDBIndex() //获取Conn的selectedDB
-	fmt.Printf("上层：Conn层的selectedDB为%d，所以执行dbSet[%d].Exec方法\n", dbIndex, dbIndex)
+	fmt.Printf("上层：Conn层的selectedDB为%d，所以执行dbSet[%d].Exec方法,args为%s\n", dbIndex, dbIndex, utils.BytesToStrings(args))
 
 	if dbIndex < 0 || dbIndex >= len(db.dbSet) {
 		return reply.NewStandardErrReply("ERR DB index out of range")

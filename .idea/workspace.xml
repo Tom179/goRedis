@@ -6,9 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cluster/cluster_database.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/cluster_database.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cluster/commandRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp/handler/respHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/handler/respHandler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aof/aof.go" beforeDir="false" afterPath="$PROJECT_DIR$/aof/aof.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" afterPath="$PROJECT_DIR$/appendonly.aof" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/utils/SafeBool.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/SafeBool.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/redis.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -173,33 +176,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>55</line>
+          <line>56</line>
           <option name="timeStamp" value="23" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>67</line>
+          <line>71</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>99</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>126</line>
-          <option name="timeStamp" value="40" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/database/database.go</url>
-          <line>68</line>
+          <line>67</line>
           <option name="timeStamp" value="55" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/aof/aof.go</url>
-          <line>132</line>
-          <option name="timeStamp" value="58" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

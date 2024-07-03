@@ -22,6 +22,7 @@ const aofBufferSize = 1 << 16
 type payload struct {
 	cmdLine CmdLine
 	dbIndex int
+	Loading bool //添加一个标志位记录是否恢复模式
 }
 
 type AofHandler struct {
@@ -30,7 +31,7 @@ type AofHandler struct {
 	aofFile     *os.File
 	aofFileName string
 	currentDB   int //维护当前库的id
-	Loading     utils.SafeBool
+	Loading     bool
 }
 
 func NewAofHandler(database database.Database) (*AofHandler, error) {
@@ -52,14 +53,17 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 }
 
 // ↓异步落盘\持久化
-func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine) { //传入：几号DB数据库
+func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine, isLoading bool) { //传入：几号DB数据库
 	logger.Debugf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d\n", utils.BytesToStrings(cmd), dbIndex)
+	fmt.Printf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d,是否为恢复模式:%t\n", utils.BytesToStrings(cmd), dbIndex, isLoading)
+
 	//fmt.Println("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d")
 	if config.Properties.AppendOnly && handler.aofChan != nil {
 		//新建pyload
 		handler.aofChan <- &payload{ //将传入参数组装为payload并传到channel
 			cmdLine: cmd,
 			dbIndex: dbIndex,
+			Loading: isLoading,
 		}
 	}
 }
@@ -70,9 +74,10 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 	handler.currentDB = 0
 
 	for p := range handler.aofChan { //传入当前指令和上一个id
-		if p.dbIndex != handler.currentDB {
-			fmt.Printf("p.dbIndex为%d,handler.currentDB为%d：", p.dbIndex, handler.currentDB)
-			if !handler.Loading.Get() { //不是恢复模式就写
+		//fmt.Printf("p.dbIndex为%d,handler.currentDB为%d\n", p.dbIndex, handler.currentDB)
+		fmt.Printf("handle线程在AofChan中获取一条：命令为%s,恢复模式为%t\n", utils.BytesToStrings(p.cmdLine), p.Loading)
+		if !p.Loading { //若不是恢复模式就写
+			if p.dbIndex != handler.currentDB {
 				args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
 				data := reply.NewMultiBulkReply(args).ToBytes()
 				_, err := handler.aofFile.Write(data) //写Select命令到Aof中
@@ -80,32 +85,33 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 					logger.Error(err)
 					continue
 				}
+				handler.currentDB = p.dbIndex
+				fmt.Println("handler.currentDB编号修改为:", handler.currentDB)
 			}
-			handler.currentDB = p.dbIndex
-			fmt.Println("handler.currentDB编号修改为:", handler.currentDB)
-		}
-		if !handler.Loading.Get() { //不是恢复模式就写
 			data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
 			_, err := handler.aofFile.Write(data)
 			if err != nil {
 				logger.Error(err)
 			}
+		} else {
+			continue
 		}
+
 	}
-	handler.Loading.Set(false)
+	//handler.Loading.Set(false)调不到
 }
 
 // loadAof
 func (handler *AofHandler) LoadAof() {
-	handler.Loading.Set(true)
-	//fmt.Println("修改loding为true")
+	handler.Loading = true
+	fmt.Println("修改loding为true,loding:", handler.Loading)
 	file, err := os.Open(handler.aofFileName) //封装了openFile()函数，以只读的方式打开文件
 	if err != nil {
 		logger.Error(err)
 		return
 	}
-	defer file.Close() //恢复加载后就关闭文件
-	ch := parser.ParseStream(file)
+	defer file.Close()             //恢复加载后就关闭文件
+	ch := parser.ParseStream(file) //把流中的命令读取结束就退出
 	for p := range ch {
 		if p.Err != nil {
 			if p.Err == io.EOF {
@@ -140,5 +146,6 @@ func (handler *AofHandler) LoadAof() {
 			logger.Error(rep)
 		}
 	}
-	//fmt.Println("修改loding为false")
+	handler.Loading = false
+	fmt.Println("修改loding为false,loding:", handler.Loading)
 }
