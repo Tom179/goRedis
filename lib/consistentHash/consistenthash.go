@@ -10,7 +10,7 @@ type HashFunc func(data []byte) uint32 //哈希函数
 
 type NodeMap struct {
 	hashFunc    HashFunc
-	nodeHashs   []int          //节点哈希（位置）列表。！因为要对节点的哈希值进行排序，sort函数默认不能实现排序。解决方法1.类型转换2.将uint32实现sort接口
+	nodeHashs   []int          //节点IP的哈希列表。！因为要对节点的哈希值进行排序，sort函数默认不能实现排序。解决方法1.类型转换2.将uint32实现sort接口
 	nodeHashMap map[int]string //string记录的节点名字、地址
 }
 
@@ -51,7 +51,7 @@ func (m *NodeMap) PickNode(key string) string { //返回string是目标节点的
 	nodeIDX := sort.Search(len(m.nodeHashs), func(i int) bool {
 		return m.nodeHashs[i] >= hash //找到大于该hash的第一个哈希，也就是找到了节点
 	}) //返回满足（条件函数）的第一个下标
-	fmt.Println("找到的大于该hash的第一个下标为", nodeIDX)
+	//fmt.Println("选取的结点下标为", nodeIDX)
 	if nodeIDX == len(m.nodeHashs) {
 		nodeIDX = 0
 	}

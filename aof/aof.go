@@ -28,7 +28,7 @@ type payload struct {
 type AofHandler struct {
 	database    database.Database
 	aofChan     chan *payload //存储引擎写操作时，传递消息
-	aofFile     *os.File
+	AofFile     *os.File
 	aofFileName string
 	currentDB   int //维护当前库的id
 	Loading     bool
@@ -40,13 +40,12 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 	handler.AofCmd = make(map[string]bool)
 	handler.aofFileName = config.Properties.AppendFilename
 	handler.database = database
-	//handler.LoadAof() //loadAof。当调用NewAofHandler时，是启动操作。先把写在硬盘上的aof文件恢复到内存中来。
 
 	aofFile, err := os.OpenFile(handler.aofFileName, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0600) //
 	if err != nil {
 		return nil, err
 	}
-	handler.aofFile = aofFile
+	handler.AofFile = aofFile
 	handler.aofChan = make(chan *payload, aofBufferSize)
 	go func() {
 		handler.handleAof()
@@ -56,10 +55,7 @@ func NewAofHandler(database database.Database) (*AofHandler, error) {
 
 // ↓异步落盘\持久化
 func (handler *AofHandler) AddAof(dbIndex int, cmd CmdLine, isLoading bool) { //传入：几号DB数据库
-	//logger.Debugf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d\n", utils.BytesToStrings(cmd), dbIndex)
 	//fmt.Printf("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d,是否为恢复模式:%t\n", utils.BytesToStrings(cmd), dbIndex, isLoading)
-
-	//fmt.Println("调用AddAof，命令为%s,发送到chan的预期dbIndex为%d")
 	if config.Properties.AppendOnly && handler.aofChan != nil {
 		//新建pyload
 		handler.aofChan <- &payload{ //将传入参数组装为payload并传到channel
@@ -81,7 +77,7 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 			if p.dbIndex != handler.currentDB { //handler.currentDB：旧DB,p.dbIndex,通道传过来的最新DB?
 				args := utils.ToCmdLine("select", strconv.Itoa(p.dbIndex))
 				data := reply.NewMultiBulkReply(args).ToBytes()
-				_, err := handler.aofFile.Write(data) //写Select命令到Aof中
+				_, err := handler.AofFile.Write(data) //写Select命令到Aof中
 				if err != nil {
 					logger.Error(err)
 					continue
@@ -90,7 +86,7 @@ func (handler *AofHandler) handleAof() { //将aofChan中的命令持久化。、
 				//fmt.Println("handler.currentDB编号修改为:", handler.currentDB)
 			}
 			data := reply.NewMultiBulkReply(p.cmdLine).ToBytes()
-			_, err := handler.aofFile.Write(data)
+			_, err := handler.AofFile.Write(data)
 			if err != nil {
 				logger.Error(err)
 			}

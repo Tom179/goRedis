@@ -14,7 +14,7 @@ import (
 
 type Database struct {
 	dbSet      []*RedisDb
-	aofHandler *aof.AofHandler //持久化对象
+	AofHandler *aof.AofHandler //持久化对象
 }
 
 func NewDataBase() *Database {
@@ -34,10 +34,10 @@ func NewDataBase() *Database {
 		if err != nil {
 			panic(err) //严重错误直接抛出panic
 		}
-		database.aofHandler = aofHandler
+		database.AofHandler = aofHandler
 		for _, db := range database.dbSet {
 			db.AddAof = func(line database2.CmdLine) { //仅声明，未调用，现在的id、Loaing是固定不变的,记得在调用之前手动改一下
-				database.aofHandler.AddAof(db.Id, line, aofHandler.Loading)
+				database.AofHandler.AddAof(db.Id, line, aofHandler.Loading)
 			}
 		}
 		database.RegistAofCmd() //指定Aof指令
@@ -46,32 +46,6 @@ func NewDataBase() *Database {
 	return database
 }
 
-func (db *Database) RegistAofCmd() { //
-	db.aofHandler.AofCmd["set"] = true
-	db.aofHandler.AofCmd["del"] = true
-	db.aofHandler.AofCmd["setnx"] = true
-	db.aofHandler.AofCmd["getset"] = true
-	db.aofHandler.AofCmd["flushdb"] = true
-	db.aofHandler.AofCmd["rename"] = true
-	db.aofHandler.AofCmd["renamenx"] = true
-
-	//hash
-	db.aofHandler.AofCmd["hget"] = true
-	db.aofHandler.AofCmd["hdel"] = true
-
-	//list
-	db.aofHandler.AofCmd["lpush"] = true
-	db.aofHandler.AofCmd["rpush"] = true
-	db.aofHandler.AofCmd["lpop"] = true
-	db.aofHandler.AofCmd["rpop"] = true
-
-	//set
-	db.aofHandler.AofCmd["sadd"] = true
-	db.aofHandler.AofCmd["srem"] = true
-
-	//db.aofHandler.AofCmd["del"] = true
-
-}
 func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 	defer func() {
 		if err := recover(); err != nil {
@@ -89,9 +63,9 @@ func (db *Database) Exec(client resp.Connection, args [][]byte) resp.Reply {
 	}
 
 	ConnIndex := client.GetDBIndex()   //获取Conn的DB
-	if db.aofHandler.AofCmd[cmdName] { //如果cmd是写指令
+	if db.AofHandler.AofCmd[cmdName] { //如果cmd是写指令
 		db.dbSet[ConnIndex].AddAof(args) //会写入到aofChan中。当前dbIndex一定是正确的，因为Conn连接中的id是强更新强一致的。
-		//所以发送到AofChan中的id是最新的，【但是要在非select命令的时候才会发送最新id】
+		//所以发送到AofChan中的id是最新的，【但是要在select命令下一条命令的时候才会发送最新id】
 	}
 	return db.dbSet[ConnIndex].Exec(client, args)
 }
@@ -115,4 +89,27 @@ func Select(conn resp.Connection, db *Database, args [][]byte) resp.Reply {
 	}
 	conn.SelectDB(dbIndex)
 	return reply.NewOkReply()
+}
+func (db *Database) RegistAofCmd() { //
+	db.AofHandler.AofCmd["set"] = true
+	db.AofHandler.AofCmd["del"] = true
+	db.AofHandler.AofCmd["setnx"] = true
+	db.AofHandler.AofCmd["getset"] = true
+	db.AofHandler.AofCmd["flushdb"] = true
+	db.AofHandler.AofCmd["rename"] = true
+	db.AofHandler.AofCmd["renamenx"] = true
+
+	//hash
+	db.AofHandler.AofCmd["hget"] = true
+	db.AofHandler.AofCmd["hdel"] = true
+
+	//list
+	db.AofHandler.AofCmd["lpush"] = true
+	db.AofHandler.AofCmd["rpush"] = true
+	db.AofHandler.AofCmd["lpop"] = true
+	db.AofHandler.AofCmd["rpop"] = true
+
+	//set
+	db.AofHandler.AofCmd["sadd"] = true
+	db.AofHandler.AofCmd["srem"] = true
 }

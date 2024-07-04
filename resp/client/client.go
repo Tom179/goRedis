@@ -6,6 +6,7 @@ import (
 	"goRedis/interface/resp"
 	"goRedis/lib/logger"
 	"goRedis/lib/sync/wait"
+	"goRedis/lib/utils"
 	"goRedis/resp/parser"
 	"goRedis/resp/reply"
 	"net"
@@ -24,14 +25,14 @@ const (
 
 // 此Client是管道模式的 redis 客户端
 type Client struct {
-	conn        net.Conn
-	pendingReqs chan *request // wait to send        等待发送
-	watingResp  chan *request // waiting response    等待响应
+	conn        net.Conn      //直接对conn进行读写操作
+	pendingReqs chan *request //等待发送Chan
+	watingResp  chan *request //等待响应Chan
 	ticker      *time.Ticker
 	addr        string
 
 	status  int32
-	working *sync.WaitGroup // its counter presents unfinished requests(pending and waiting)
+	working *sync.WaitGroup //其计数器显示未完成的请求（待处理和等待）
 }
 
 type request struct {
@@ -67,14 +68,13 @@ func MakeClient(addr string) (*Client, error) {
 func (client *Client) Start() {
 	client.ticker = time.NewTicker(10 * time.Second) //心跳通道
 
-	go client.handleWrite() //监听pendingReq通道的请求并，将请求写入到client.conn和watingResp中，暂未响应。
-	go client.handleRead()  //从client.conn中读取数据并将其填入到从WatingResp获取的request中。request从等待响watingResp中移出，代表已成功响应
+	go client.handleWrite() //监听pendingReq通道的请求并，将请求写入到client.conn中并加入watingResp通道，暂未响应。
+	go client.handleRead()  //从client.conn中读取数据{响应}并将其填入到从WatingResp获取的request中。request从等待响watingResp中移出，代表已成功响应
 	go client.heartbeat()   //每10秒发送ping命令到pendingReq
 
 	atomic.StoreInt32(&client.status, running)
 }
 
-// Close stops asynchronous goroutines and close connection
 func (client *Client) Close() {
 	atomic.StoreInt32(&client.status, closed)
 	client.ticker.Stop()
@@ -89,7 +89,7 @@ func (client *Client) Close() {
 
 func (client *Client) reconnect() {
 	logger.Info("reconnect with: " + client.addr)
-	_ = client.conn.Close() // ignore possible errors from repeated closes
+	_ = client.conn.Close()
 
 	var conn net.Conn
 	for i := 0; i < 3; i++ {
@@ -103,7 +103,7 @@ func (client *Client) reconnect() {
 			break
 		}
 	}
-	if conn == nil { // reach max retry, abort
+	if conn == nil {
 		client.Close()
 		return
 	}
@@ -133,6 +133,7 @@ func (client *Client) handleWrite() {
 
 // 发送请求,发送到pendingReqs通道而已
 func (client *Client) Send(args [][]byte) resp.Reply {
+	fmt.Println("发送到pendingReqs通道的命令为:", utils.BytesToStrings(args))
 	if atomic.LoadInt32(&client.status) != running { //获取运行状态
 		return reply.NewStandardErrReply("client closed")
 	}
@@ -145,7 +146,7 @@ func (client *Client) Send(args [][]byte) resp.Reply {
 	client.working.Add(1)       //wg+1
 	defer client.working.Done() //wg-1，表示一个发送pendingReqs任务完成，清零时表示client任务完成
 	client.pendingReqs <- req
-	timeout := req.waiting.WaitWithTimeout(maxWait)
+	timeout := req.waiting.WaitWithTimeout(maxWait) //////////////////Req会等待到handleRaed线程将reply写入后再，才会接触阻塞
 	if timeout {
 		return reply.NewStandardErrReply("server time out")
 	}
@@ -184,11 +185,11 @@ func (client *Client) doRequest(req *request) {
 		}
 	}
 	if err == nil { //写成功
-		fmt.Println("写入到连接成功！！！,将req发送到WatingResp通道")
+		//fmt.Println("写入到连接成功！！！,将req发送到WatingResp通道")
 		client.watingResp <- req
 	} else {
 		req.err = err
-		req.waiting.Done() //请求成功处理
+		req.waiting.Done() //请求成功完成
 	}
 }
 

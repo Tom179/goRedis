@@ -7,14 +7,16 @@
     <list default="true" id="02d037b3-0b84-4855-a654-f8d1035a1414" name="Changes" comment="提交">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aof/aof.go" beforeDir="false" afterPath="$PROJECT_DIR$/aof/aof.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/appendonly.aof" beforeDir="false" afterPath="$PROJECT_DIR$/appendonly.aof" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cluster/cluster_database.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/cluster_database.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cluster/commandRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/commandRouter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cluster/communicate.go" beforeDir="false" afterPath="$PROJECT_DIR$/cluster/communicate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/cmd/string.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/cmd/string.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/redisDb.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/redisDb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/consistentHash/consistenthash.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/consistentHash/hash_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/consistentHash/hash_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/myapp.exe" beforeDir="false" afterPath="$PROJECT_DIR$/myapp.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp/parser/parser.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/parser/parser.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/redis.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resp/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/resp/client/client.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,14 +53,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "C:/Users/QL",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\GoWorks\project\goRedis\lib\consistentHash" />
@@ -66,15 +74,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build main.go">
-    <configuration name="go build echo.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="goRedis" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <package value="goRedis" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/tcp/echo.go" />
-      <method v="2" />
-    </configuration>
     <configuration name="go build goRedis" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="goRedis" />
       <working_directory value="$PROJECT_DIR$" />
@@ -93,6 +92,18 @@
       <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestHushValue in goRedis/lib/consistentHash (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="goRedis" />
+      <working_directory value="$PROJECT_DIR$/lib/consistentHash" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="goRedis/lib/consistentHash" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestHushValue\E$" />
+      <method v="2" />
+    </configuration>
     <configuration name="TestHushValue in goRedis/lib/consistentHash" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="goRedis" />
       <working_directory value="$PROJECT_DIR$/lib/consistentHash" />
@@ -105,9 +116,22 @@
       <pattern value="^\QTestHushValue\E$" />
       <method v="2" />
     </configuration>
+    <configuration name="hash_test.go" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="goRedis" />
+      <working_directory value="$PROJECT_DIR$/lib/consistentHash" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="goRedis" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/lib/consistentHash/hash_test.go" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.hash_test.go" />
+        <item itemvalue="Go Test.TestHushValue in goRedis/lib/consistentHash (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -186,6 +210,15 @@
     <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/resp/handler/respHandler.go</url>
+          <line>103</line>
+          <option name="timeStamp" value="81" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="GoApplicationRunConfiguration">
         <watch expression="handler.aofChan" />

@@ -37,12 +37,11 @@ func NewClusterDatabase() *ClusterDatabase {
 	nodes = append(nodes, config.Properties.Self)
 
 	for _, node := range nodes {
-		cluster.peerPicker.AddNode(node) //todo 结点ip的哈希值得很紧怎么办？。而Key的hash值太散，会插不进去。
-		cluster.peerConnection[node] = pool.NewObjectPoolWithDefaultConfig(context.Background(), &connectionFactory{
+		cluster.peerPicker.AddNode(node)
+		cluster.peerConnection[node] = pool.NewObjectPoolWithDefaultConfig(context.Background(), &connectionFactory{ //每个连接的连接工厂，再次获取连接池。用peerNode的ip直接连接网络ip和端口。
 			Peer: node,
 		})
 	}
-	//Dugug
 	cluster.peerPicker.ShowNodeHashMap()
 
 	cluster.nodes = nodes
@@ -65,6 +64,7 @@ func (cluster *ClusterDatabase) Exec(client resp.Connection, args [][]byte) (res
 		fmt.Println("集群层指令未注册")
 	}
 	result = cmdFunc(cluster, client, args)
+	fmt.Println("响应为:", string(result.ToBytes()))
 	return
 }
 

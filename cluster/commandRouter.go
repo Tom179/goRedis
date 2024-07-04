@@ -2,10 +2,7 @@ package cluster
 
 import (
 	"goRedis/interface/resp"
-	"goRedis/lib/logger"
-	"goRedis/lib/utils"
 	"goRedis/resp/reply"
-	"strconv"
 )
 
 var CommandRouter = makeRouter()
@@ -13,7 +10,6 @@ var CommandRouter = makeRouter()
 func makeRouter() map[string]CmdFunc { //string是指令
 	routerMap := make(map[string]CmdFunc)
 	routerMap["select"] = execSelect
-	routerMap["exists"] = defultFunc
 	routerMap["type"] = defultFunc
 	routerMap["set"] = defultFunc
 	routerMap["setnx"] = defultFunc
@@ -22,8 +18,8 @@ func makeRouter() map[string]CmdFunc { //string是指令
 	routerMap["ping"] = ping
 	routerMap["rename"] = Rename
 	routerMap["renamenx"] = Rename
-	routerMap["flushdb"] = flushDB
-	routerMap["del"] = Del
+	routerMap["flushdb"] = defultFunc
+	routerMap["del"] = defultFunc
 
 	return routerMap
 }
@@ -34,7 +30,7 @@ func defultFunc(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) r
 	//fmt.Printf("key为:%s,根据key哈希得到集群中的结点地址\n", key)
 
 	peerIp := cluster.peerPicker.PickNode(key) //找到结点地址
-	return cluster.relay(peerIp, c, cmdArgs)   //转发
+	return cluster.relay(peerIp, c, cmdArgs)   //get、set每个指令都会调用relay，因为是否转发是在relay中判断的
 }
 
 func ping(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply {
@@ -42,13 +38,6 @@ func ping(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Re
 }
 
 func execSelect(cluster *ClusterDatabase, c resp.Connection, cmdArgs [][]byte) resp.Reply { //和ping一样
-	args := utils.ToCmdLine("select", strconv.Atoi(cmdArgs[1]))
-	data := reply.NewMultiBulkReply(args).ToBytes()
-	_, err := cluster.db.aofFile.Write(data) //写Select命令到Aof中
-	if err != nil {
-		logger.Error(err)
-		continue
-	}
 	return cluster.db.Exec(c, cmdArgs)
 }
 
